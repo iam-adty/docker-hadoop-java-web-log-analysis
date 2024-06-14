@@ -1,0 +1,59 @@
+version: "2"
+
+networks:
+  default:
+
+volumes:
+  vscode-server:
+  namenode_data:
+  datanode_data:
+  resourcemanager_data:
+  nodemanager_data:
+
+services:
+    namenode:
+      image: myhadoop
+      command: ["hdfs", "namenode"]
+      ports:
+        - 9870:9870
+      env_file:
+        - ./config
+      environment:
+        ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
+      volumes:
+        - ./:/projects
+        - namenode_data:/data
+        - vscode-server:/root/.vscode-server
+      networks:
+        - default
+      working_dir: /projects
+      user: root
+    datanode:
+      image: myhadoop
+      command: ["hdfs", "datanode"]
+      env_file:
+        - ./config
+      networks:
+        - default
+      volumes:
+        - datanode_data:/data
+    resourcemanager:
+      image: myhadoop
+      command: ["yarn", "resourcemanager"]
+      ports:
+         - 8088:8088
+      env_file:
+        - ./config
+      networks:
+        - default
+      volumes:
+        - resourcemanager_data:/data
+    nodemanager:
+      image: myhadoop
+      command: ["yarn", "nodemanager"]
+      env_file:
+        - ./config
+      networks:
+        - default
+      volumes:
+        - nodemanager_data:/data
